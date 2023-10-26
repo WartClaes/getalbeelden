@@ -1,95 +1,98 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client'
+
+import { useEffect, useRef, useState, useMemo } from 'react';
+import clsx from 'clsx';
+
+import { useApp } from '@/services/app-context';
+import { Figure } from '@/components/figure';
+import { Answer } from '@/components/answer';
+
+import styles from './page.module.css';
+
+type State = 'start'|'figure'|'answer'|'result'|'end';
 
 export default function Home() {
+  const [state, setState] = useState<State>('start');
+
+  // const { lives, loseLife } = useApp();
+
+  const amountRef = useRef<number>(1);
+  const resultRef = useRef<number>(1);
+  const lifesRef = useRef<number>(3);
+  const timeoutRef = useRef<number>(2000);
+  const counterRef = useRef<number>(0);
+
+  function restartHandler() {
+    counterRef.current = 0;
+    timeoutRef.current = 2000;
+    lifesRef.current = 3;
+
+    setState('start');
+  }
+
+  function startHandler() {
+    amountRef.current = Math.floor(Math.random() * 10) + 1;
+    setState('figure');
+  }
+
+  function answerHandler(r: number) {
+    setState('result');
+    resultRef.current = r;
+
+    if (r === amountRef.current) {
+      counterRef.current += 1;
+    } else {
+      // loseLife();
+      lifesRef.current -= 1;
+    }
+
+    timeoutRef.current = timeoutRef.current * 0.95;
+  }
+
+  useEffect(() => {
+    if (state !== 'figure') return;
+
+    window.setTimeout(() => {
+      setState('answer');
+    }, timeoutRef.current);
+  }, [state]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
+    <div className={ clsx(styles.app, { 
+      [styles.correct]: state === 'result' && resultRef.current === amountRef.current,
+      [styles.incorrect]: state === 'result' && resultRef.current !== amountRef.current,
+    })}>
+      { (state === 'start') && <button className={styles.start} onClick={startHandler}>Start</button> }
+      { (state === 'figure') && <Figure amount={amountRef.current} /> }
+      { (state === 'answer') && <Answer amount={10} onClick={answerHandler} /> }
+      { (state === 'result') && (
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <div className={styles.result}>
+            { resultRef.current === amountRef.current ? <>😁</> : <>😞</> }
+          </div>
+
+          <div className={styles.result}>
+            { amountRef.current }
+          </div>
+
+          { lifesRef.current > 0 && (
+            <button className={styles.start} onClick={startHandler}>volgende</button>
+          )}
+
+          { lifesRef.current === 0 && (
+            <>
+              <div className={styles.end}>{ counterRef.current } goede antwoorden!</div>
+              <button className={styles.start} onClick={restartHandler}>herstarten</button>
+            </>
+          )}
         </div>
+      )}
+
+      <div className={styles.lifes}>
+        { Array.from(Array(lifesRef.current).keys()).map((k) => (
+          <div key={k}>❤️</div>
+        ))}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </div>
+  );
 }
