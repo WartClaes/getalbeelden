@@ -1,55 +1,19 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 100px;
+}
+
 .figure {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  grid-template-columns: repeat(7, 100px);
-  grid-template-rows: repeat(2, 100px);
-  grid-template-areas: 
-    "one three . five seven . nine"
-    "two four . six eight . ten";
+  width: 580px;
 }
 
 .circle {
   background-color: #1f4c77;
   border-radius: 50%;
+  height: 100px;
+  width: 100px;
 }
-
-.circle:nth-child(1) {
-  grid-area: one;
-}
-
-.circle:nth-child(2) {
-  grid-area: two;
-}
-
-.circle:nth-child(3) {
-  grid-area: three;
-}
-
-.circle:nth-child(4) {
-  grid-area: four;
-}
-
-.circle:nth-child(5) {
-  grid-area: five;
-}
-
-.circle:nth-child(6) {
-  grid-area: six;
-}
-
-.circle:nth-child(7) {
-  grid-area: seven;
-}
-
-.circle:nth-child(8) {
-  grid-area: eight;
-}
-
-.circle:nth-child(9) {
-  grid-area: nine;
-}
-
-.circle:nth-child(10) {
-  grid-area: ten;
-}
-

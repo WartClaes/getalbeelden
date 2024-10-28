@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
-import { useApp } from '@/services/app-context';
 import { Figure } from '@/components/figure';
 import { Answer } from '@/components/answer';
 
@@ -15,6 +14,7 @@ export default function Home() {
   const [state, setState] = useState<State>('start');
 
   // const { lives, loseLife } = useApp();
+  const MAX_AMOUNT = 20;
 
   const amountRef = useRef<number>(1);
   const resultRef = useRef<number>(1);
@@ -31,7 +31,15 @@ export default function Home() {
   }
 
   function startHandler() {
-    amountRef.current = Math.floor(Math.random() * 10) + 1;
+    const newNumber = Math.floor(Math.random() * MAX_AMOUNT) + 1;
+
+    // not the same number twice in a row
+    if (newNumber === amountRef.current) {
+      startHandler();
+      return;
+    }
+
+    amountRef.current = newNumber;
     setState('figure');
   }
 
@@ -64,7 +72,7 @@ export default function Home() {
     })}>
       { (state === 'start') && <button className={styles.start} onClick={startHandler}>Start</button> }
       { (state === 'figure') && <Figure amount={amountRef.current} /> }
-      { (state === 'answer') && <Answer amount={10} onClick={answerHandler} /> }
+      { (state === 'answer') && <Answer amount={MAX_AMOUNT} onClick={answerHandler} /> }
       { (state === 'result') && (
         <div>
           <div className={styles.result}>
